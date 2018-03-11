@@ -39,10 +39,9 @@ Starting logstash (with plugin installed) in debug mode
 ```
 bin/logstash -e 'input { stdin{codec => json_lines} } filter { sentiment { apikey => "YOURAPIKEY"} } output {stdout { codec => rubydebug }}'
 ```
-Manually enter a JSON Doc: {"target_url":"http://www.cnn.com"} (Hit enter)
+Manually enter a JSON Doc: {"target_url":"http://www.dropbox.com"} (Hit enter)
 ```
 {
-     { "target_url" : "http://www.dropbox.com" }            
      Conducting VirusTotal Analysis on URL: http://www.dropbox.com
      {
                 "host" => "logstash-server.local",
