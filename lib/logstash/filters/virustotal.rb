@@ -8,7 +8,8 @@ class LogStash::Filters::VirusTotal < LogStash::Filters::Base
   config_name "virustotal"
   config :apikey, :validate => :string, :default => ""
   config :wait_time, :validate => :number, :default => 0.5
-
+  config :wait_on_vt, :validate => :number, :default => 5
+  config :url_field_name, :validate => :string, :default => "url"
 
   public
   def register
@@ -18,16 +19,24 @@ class LogStash::Filters::VirusTotal < LogStash::Filters::Base
   public
   def filter(event)
 
-    if !event.get("target_url").nil?
-       target_url =  event.get("target_url")
+    if !event.get(url_field_name).nil?
+       target_url =  event.get(url_field_name)
        puts "Conducting VirusTotal Analysis on URL: #{target_url}"
-       @logger.debug? && @logger.debug("Conducting VirusTotal Analysis on Field: #{target_url}")
+       @logger.debug? && @logger.debug("Conducting VirusTotal Analysis on Specificed URL Field: #{target_url}")
 
-        vturl_report = VirustotalAPI::URLReport.find(target_url, apikey)
+       vturl_report = VirustotalAPI::URLReport.find(target_url, apikey)
+
+       bust_out = false
+       total_wait_time = 0
 
         # Wait for results
-        until vturl_report.exists? do
+        until vturl_report.exists? or bust_out == true do
          sleep(wait_time)
+         total_wait_time += wait_time
+         if total_wait_time > wait_on_vt
+           bust_out = true
+           puts "Timeout waiting for VT response"
+         end
         end
 
         # URL for Report (if it exists)
@@ -36,7 +45,6 @@ class LogStash::Filters::VirusTotal < LogStash::Filters::Base
         @logger.debug? && @logger.debug(puts vturl_report.report_url)
 
         # Report results
-        #event.set(vturl_report.report["scans"]["Opera"])
         event.set("report_data", vturl_report.report )
 
     else

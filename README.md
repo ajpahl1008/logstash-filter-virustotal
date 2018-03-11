@@ -24,7 +24,11 @@ In this example, the sentiment defaults to the message field in the event.
 input {...}
 
 filter {
-  virustotal { apikey=>"YOURAPIKEY" }
+  virustotal { 
+        apikey=>"YOURAPIKEY"
+        url_field_name => "target_url" // Configurable field that contains the url.
+        wait_on_vt => 10               // Sets a Timeout waiting for a response (seconds)
+   }
 }
 
 output {...}
