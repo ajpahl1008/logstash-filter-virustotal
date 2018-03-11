@@ -1,6 +1,6 @@
 # logstash-filter-virustotal (beta)
 Connects to VirusTotal API services for URL information.
-
+This requires an API Key from http://virustotal.com
 # Prerequisites
 git, ruby
 
